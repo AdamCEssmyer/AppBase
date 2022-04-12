@@ -4,6 +4,7 @@ import { ApiHelper } from "../../helpers"
 import { ChurchInterface } from "../../interfaces";
 import { SelectableChurch } from "./SelectableChurch";
 import { SelectChurchRegister } from "./SelectChurchRegister";
+import { geocodeByAddress, getLatlng, geocodeByPlaceId } from 'react-places-autocomplete';
 
 interface Props {
   selectChurch: (churchId: string) => void,
@@ -55,6 +56,15 @@ export const SelectChurchSearch: React.FC<Props> = (props) => {
     else if (churches.length === 0) return <><p>No matches found</p>{getRegisterLink()}</>
     else return getChurches();
   }
+  
+  const handleSelect = async (address, placeId) => {
+    const results = await geocodeByAddress(address);
+    const latLng = await getLatLng(results[0]);
+    const [place] = await geocodeByPlaceId(placeId);
+    const { long_name: postalCode = '' } =
+          place.address_components.find(c => c.types.includes('postal_code')) || {};
+    console.log("postalCode",postalCode);
+  };
 
   if (showRegister) return (<SelectChurchRegister selectChurch={props.selectChurch} registeredChurchCallback={props.registeredChurchCallback} appName={props.appName} initialChurchName={searchText} />)
   else return (
